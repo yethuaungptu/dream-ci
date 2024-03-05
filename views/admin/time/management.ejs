@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en" data-bs-theme="auto">
+  <head>
+    <% include ../../partialAdmin/head %>
+    <!-- Custom styles for this template -->
+  </head>
+  <body>
+    <% include ../../partialAdmin/theme-switcher %>
+    
+    <% include ../../partialAdmin/header %>
+
+<div class="container-fluid">
+  <div class="row">
+    <% include ../../partialAdmin/sidebar %>
+
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Time Management</h1>
+      </div>
+      <div class="row">
+        <div class="col-lg-4 col-md-12 col-sm-12">
+          <label for="movieId" class="form-label">Movie:</label>
+          <select class="form-select" name="movieId" id="movieId" aria-label="Default select example">
+            <option value="">Please Select Movie</option>
+            <% for(var i = 0; i < movies.length; i++){%>
+              <option value="<%= movies[i]._id %>" data-screen="<%= movies[i].cinemaId.noOfScreen %>" data-showtime = "<%= movies[i].cinemaId.showTime %>" data-startdate="<%= movies[i].startDate %>" data-enddate="<%= movies[i].endDate %>"><%= movies[i].title %> (<%= movies[i].cinemaId.name %>)</option>
+            <%}%>
+          </select>
+        </div>
+        <div class="col-lg-4 col-md-12 col-sm-12">
+          <label for="screen" class="form-label">Screen:</label>
+          <select name="screen" id="screen" class="form-select">
+          </select>
+        </div>
+        <div class="col-lg-4 col-md-1 col-sm-1 mt-auto d-grid">
+          <button class="btn btn-primary" onclick="checkMovie()">Check</button>
+        </div>
+      </div>
+      <h3 class="text-center m-3">Show time</h3>
+      <div class="row m-3" id="showT">
+      </div>
+      <div id="add-form" class="show m-3">
+        <h3 class="text-center">Add Time</h3>
+        <div id="field">
+        </div>
+        <div class="d-grid mt-3">
+          <button class="btn btn-primary" id="submitBtn">Submit</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/javascripts/jquery.com_jquery-3.7.0.min.js"></script>
+<script>
+  $("#submitBtn").hide()
+  const movieId = document.getElementById("movieId");
+  var screenCount;
+  var showTime;
+  var startDate;
+  var endDate;
+  var screenHtml;
+  var showTimeHtml;
+  function refreshBtn(){
+  
+  $(".add-btn").click(function(){
+    $(this).removeClass("btn-primary add-btn");
+    $(this).text("-");
+    $(this).addClass("btn-danger remove-btn");
+    var html = '<div class="col-lg-4 col-md-6 col-sm-12 row"><div class="col"><label>Screen</label><select class="form-select">'+screenHtml+'</select></div><div class="col"><label>Time</label><select class="form-select">'+showTimeHtml+'</select></div><div class="col mt-auto"><button class="add-btn btn btn-primary">+</button></div></div></div>';
+    var oldHTML = $(this).parents()[2].innerHTML;
+    $(this).parents()[2].innerHTML = oldHTML+html;
+    refreshBtn()
+  })
+  $(".remove-btn").click(function(){
+    $(this).parents()[1].remove()
+  })
+}
+refreshBtn()
+  movieId.onchange = function(e){
+    $("#screen").empty();
+    $("#showT").empty();
+    screenHtml = "";
+    showTimeHtml = "";
+    if(movieId.value){
+    screenCount = event.target.options[event.target.selectedIndex].dataset.screen;
+    for(var i = 1; i <= screenCount; i++){
+      screenHtml += "<option value='"+i+"'>"+i+"</option>"
+    }
+    $("#screen").append(screenHtml);
+    showTime = event.target.options[event.target.selectedIndex].dataset.showtime;
+    startDate = event.target.options[event.target.selectedIndex].dataset.startdate;
+    endDate = event.target.options[event.target.selectedIndex].dataset.enddate;
+    var showTimeArr = showTime.split(",");
+    for(var i = 0; i < showTimeArr.length; i++){
+      $("#showT").append("<div class='col-lg-2 col-md-3 col-sm-4 text-center'>"+showTimeArr[i]+"</div>");
+      showTimeHtml += "<option value='"+showTimeArr[i]+"'>"+showTimeArr[i]+"</option>";
+    }
+  }
+  }
+ 
+  function checkMovie(){
+    $("#submitBtn").show()
+    if(movieId.value){
+      const data = {id:movieId.value}
+      $.ajax("/admin/checkMovieTimeDup", {
+          type: "POST",
+          data: data,
+          success: function (result) {
+            if (result.status) {
+              alert("Movie already inserted");
+              $("#submitBtn").hide();
+            } else {
+              const date1 = new Date(startDate);
+              const date2 = new Date(endDate);
+              $("#field").empty();
+              var fieldData = ""; 
+              for(var d = date1; d <= date2; d.setDate(d.getDate() + 1)){
+                fieldData +='<h5 class="mt-3">'+new Date(d).toISOString().slice(0, 10)+'</h5><div class="row"><div class="col-lg-4 col-md-6 col-sm-12 row"><div class="col"><label>Screen</label><select class="form-select">'+screenHtml+'</select></div><div class="col"><label>Time</label><select class="form-select">'+showTimeHtml+'</select></div><div class="col mt-auto"><button class="add-btn btn btn-primary">+</button></div></div></div>'
+              }
+              
+              $("#field").append(fieldData);
+              refreshBtn();
+            }
+          },
+        });
+    }else{
+      alert("Please select movie");
+    }
+  }
+  $("#submitBtn").click(function(){
+    let timeTable = [];
+    const fieldData = $("#field")[0].children
+    for(var i = 0; i < fieldData.length; i+=2){
+      var timeData = fieldData[i+1].children;
+      var time = [];
+      for(var j = 0; j < timeData.length;j++){
+        time.push({screenNo:timeData[j].children[0].children[1].value,time:timeData[j].children[1].children[1].value})
+      }
+      timeTable.push({date:fieldData[i].innerHTML,time:time})
+    }
+    const data = {movieid:$("#movieId").val(),timeTable,timeTable:JSON.stringify(timeTable)};
+    $.ajax("/admin/submitTimeTable", {
+          type: "POST",
+          data: data,
+          success: function (result) {
+            if(result.status){
+              location.href = "/admin";
+            }else{
+              alert("Somethings was wrong")
+            }
+          }
+        });
+  })
+</script>
+</html>

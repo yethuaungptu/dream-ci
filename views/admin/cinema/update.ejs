@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-bs-theme="auto">
+  <head>
+    <% include ../../partialAdmin/head %>
+    <!-- Custom styles for this template -->
+  </head>
+  <body>
+    <% include ../../partialAdmin/theme-switcher %>
+    
+    <% include ../../partialAdmin/header %>
+
+<div class="container-fluid">
+  <div class="row">
+    <% include ../../partialAdmin/sidebar %>
+
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Cinema Update</h1>
+      </div>
+      <div class="row">
+        <div class="col-lg-2 col-md-1 col-sm-12"></div>
+        <div class="col-lg-8 col-md-10 col-sm-12">
+          <div class="card">
+            <div class="card-body">
+              <form action="/admin/cinemaUpdate" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="id" value="<%= cinema._id %>">
+                <div class="mb-3 mt-3">
+                  <label for="name" class="form-label">Name:</label>
+                  <input type="text" class="form-control" id="name"  name="name" value="<%= cinema.name %>">
+                </div>
+                <div class="mb-3">
+                  <label for="address" class="form-label">Address:</label>
+                  <input type="text" class="form-control" id="address" value="<%= cinema.address %>" name="address">
+                </div>
+                <div class="mb-3">
+                  <label for="phone" class="form-label">Phone:</label>
+                  <input type="text" class="form-control" id="phone" value="<%= cinema.phone %>" name="phone">
+                </div>
+                <div class="mb-3">
+                  <label for="cover" class="form-label">Cover:</label>
+                  <input type="file" class="form-control" id="cover" placeholder="Insert Cover" name="cover" accept="image/*">
+                </div>
+                <div class="mb-3">
+                  <label for="gallery" class="form-label">Gallery:</label>
+                  <input type="file" class="form-control" id="gallery" placeholder="Insert Gallery" name="gallery" multiple accept="image/*">
+                </div>
+                <div class="mb-3">
+                  <label for="showTime" class="form-label">Show Time:</label>
+                  <input type="text" class="form-control" id="showTime" value="<%= cinema.showTime %>" name="showTime">
+                </div>
+                <div class="mb-3">
+                  <label for="noOfScreen" class="form-label">Number of Screen:</label>
+                  <input type="number" class="form-control" id="noOfScreen" value="<%= cinema.noOfScreen %>" name="noOfScreen" min="1">
+                </div>
+                <div class="d-grid">
+                <button type="submit" class="btn btn-block btn-primary">Update</button>
+              </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-1 col-sm-12"></div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
+</html>

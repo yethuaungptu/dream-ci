@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en" data-bs-theme="auto">
+  <head>
+    <% include ../../partialAdmin/head %>
+    <!-- Custom styles for this template -->
+  </head>
+  <body>
+    <% include ../../partialAdmin/theme-switcher %>
+    
+    <% include ../../partialAdmin/header %>
+
+<div class="container-fluid">
+  <div class="row">
+    <% include ../../partialAdmin/sidebar %>
+
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Seat Management</h1>
+      </div>
+      <div class="row">
+        <div class="col-lg-4 col-md-12 col-sm-12">
+          <label for="cinemaId" class="form-label">Cinema:</label>
+          <select class="form-select" name="cinemaId" id="cinemaId" aria-label="Default select example">
+            <option value="">Please Select Cinema</option>
+            <% for(var i = 0; i < cinemas.length; i++){%>
+              <option value="<%= cinemas[i]._id %>" data-screen="<%= cinemas[i].noOfScreen %>"><%= cinemas[i].name %> </option>
+            <%}%>
+          </select>
+        </div>
+        <div class="col-lg-4 col-md-12 col-sm-12 d-grid mt-auto">
+          <button class="btn btn-primary" id="checkBtn" onclick="checkFun()">Check</button>
+        </div>
+        <div class="col-lg-4 col-md-12 col-sm-12 d-grid mt-auto">
+          <button class="btn btn-primary" id="refreshBtn" onclick="location.reload()">Refresh</button>
+        </div>
+      </div>
+      <div id="seatBox" class="mt-5">
+      </div>
+      <div id="addSeatBox" class="row mt-3 d-none">
+       <div class="col-lg-2 col-md-6 col-sm-12">
+        <label for="screenNo" class="form-label">Select Screen:</label>
+          <select class="form-select" name="screenNo" id="screenNo" aria-label="Default select example">
+          </select>
+       </div>
+       <div class="col-lg-2 col-md-6 col-sm-12">
+        <label for="row" class="form-label">Select Row:</label>
+          <select class="form-select" name="row" id="row" aria-label="Default select example">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+            <option value="G">G</option>
+            <option value="H">H</option>
+            <option value="I">I</option>
+            <option value="J">J</option>
+            <option value="K">K</option>
+          </select>
+       </div>
+       <div class="col-lg-2 col-md-6 col-sm-12">
+        <label for="no" class="form-label">No:</label>
+          <input type="number" class="form-control" id="no" placeholder="Enter Seat No" name="no">
+       </div>
+       <div class="col-lg-3 col-md-6 col-sm-12">
+        <label for="price" class="form-label">Price:</label>
+          <input type="number" class="form-control" id="price" placeholder="Enter Seat Price" name="price">
+       </div>
+       <div class="col-lg-3 col-md-6 col-sm-12">
+        <label for="noOfSeat" class="form-label">Enter number of seats:</label>
+          <input type="number" class="form-control" id="noOfSeat" value="1" name="noOfSeat">
+       </div>
+       <div class="col-lg-12 col-md-12 col-sm-12 pt-2 mt-auto d-grid">
+        <button class="btn btn-primary" id="addBtn"  onclick="addFun()">Add</button>
+      </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/javascripts/jquery.com_jquery-3.7.0.min.js"></script>
+<script>
+  $("#cinemaId").change(function(e){
+    $("#screenNo").empty();
+    let screenData = "";
+    let screenCount = Number(event.target.options[event.target.selectedIndex].dataset.screen);
+    for(var i = 1 ; i <= screenCount;i++){
+      screenData += "<option value="+i+">"+i+"</option>";
+    }
+    $("#screenNo").append(screenData);
+  })
+  function checkFun(){
+    const data = {id:$("#cinemaId").val()};
+    $.ajax("/admin/checkCinemaSeat", {
+          type: "POST",
+          data: data,
+          success: function (result) {
+            if(!result.status){
+              alert("Somethings was wrong");
+            }else{
+              $("#checkBtn").addClass("disabled");
+              $("#cinemaId").attr("disabled","disabled");
+              $("#addSeatBox").removeClass("d-none");
+              const groupedObjects = {};
+              result.seats.forEach((obj) => {
+                groupedObjects[obj.screenNo] = 
+                        groupedObjects[obj.screenNo] || [];
+                groupedObjects[obj.screenNo].push(obj);
+              });
+              $("#seatBox").empty();
+              let html = "";
+              const objKeys = Object.keys(groupedObjects);
+              for(var i = 0; i < objKeys.length; i++){
+                html += `<h4>Screen No ${objKeys[i]}</h4>
+                            <div class="row">`
+                for(var j = 0; j < groupedObjects[objKeys[i]].length;j++){
+                  html += `<div class="col-lg-2 col-md-3 col-sm-4">
+                            <div class="card">
+                              <div class="card-body">
+                                <h4 class="card-title">${groupedObjects[objKeys[i]][j].row+groupedObjects[objKeys[i]][j].no}</h4>
+                                <p class="card-text">${groupedObjects[objKeys[i]][j].price}MMk</p>
+                              </div>
+                            </div>
+                          </div>`
+                }
+                html+= `</div>`
+              }
+              $("#seatBox").append(html);
+            }
+          }
+        });
+  } 
+  function addFun(){
+    const data = {cinemaId: $("#cinemaId").val(),row:$("#row").val(),no:$("#no").val(),screenNo:$("#screenNo").val(),price:$("#price").val(),noOfSeat:$("#noOfSeat").val()}
+    if(data.no != '' && data.price != ''){
+      $.ajax("/admin/addCinemaSeat", {
+          type: "POST",
+          data: data,
+          success: function (result) {
+            if(result.statusCode == 0){
+              alert("Somethings was wrong");
+            }else if(result.statusCode == 2){
+              alert("Seat is already inserted");
+              $("#no").val("");
+              $("#price").val("")
+            }else{
+              checkFun();
+            }
+          }
+        });
+    }else{
+      alert("Please fill all field");
+    }
+  }
+</script>
+</html>

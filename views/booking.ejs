@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto">
+  <head>
+    <!-- Custom styles for this template -->
+    <% include ./partial/head %>
+  </head>
+  <body>
+    <% include ./partial/theme-changer %> <% include ./partial/header %>
+
+    <main>
+      <h1 class="mt-5 text-center">
+        <span class="text-primary"><%= movie.title %></span> Booking
+      </h1>
+
+      <h2 class="text-success ms-2" style="cursor: pointer" id="avaliable">
+        Avaliable Times
+        <small class="text-secondary">(click for show/hide)</small>
+      </h2>
+      <div class="row ms-3" id="avaBox">
+        <% for(var i = 0; i < time.timeTable.length; i++){%>
+        <div class="col-lg-3 col-md-6 col-sm-12 mt-2">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title text-center">
+                <%= time.timeTable[i].date %>
+              </h5>
+              <ul>
+                <% for(var j = 0; j < time.timeTable[i].time.length;j++){%>
+                <li>
+                  <%= time.timeTable[i].time[j].time %> (screen <%=
+                  time.timeTable[i].time[j].screenNo %>)
+                </li>
+                <%}%>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <%}%>
+      </div>
+      <h2 class="text-success ms-2 mt-2">
+        Checking Seats with date and screen
+      </h2>
+      <div class="row ms-2 mt-2">
+        <div class="col-lg-3 col-md-6 col-sm-12">
+          <input
+            type="hidden"
+            id="avaTime"
+            value="<%= JSON.stringify(time) %>"
+          />
+          <label for="date" class="form-label">Date</label>
+          <select
+            class="form-select"
+            name="date"
+            id="date"
+            aria-label="Default select example"
+          >
+            <% for(var i = 0; i < time.timeTable.length; i++){%>
+            <option value="<%= time.timeTable[i].date %>">
+              <%= time.timeTable[i].date %>
+            </option>
+            <%}%>
+          </select>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+          <label for="screen" class="form-label">Screen</label>
+          <select
+            class="form-select"
+            name="screen"
+            id="screen"
+            aria-label="Default select example"
+          >
+            <% for(var i = 1; i <= movie.cinemaId.noOfScreen; i++){%>
+            <option value="<%= i %>"><%= i %></option>
+            <%}%>
+          </select>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+          <label for="time" class="form-label">Time</label>
+          <select
+            class="form-select"
+            name="time"
+            id="time"
+            aria-label="Default select example"
+          ></select>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12 d-grid mt-auto">
+          <button id="checkBtn" class="btn btn-primary">Check</button>
+        </div>
+      </div>
+      <div class="container">
+        <fieldset>
+          <legend>Choose your seats</legend>
+          <div class="row" id="seatBox"></div>
+        </fieldset>
+        <div class="row mt-3 d-none" id="bookingBox">
+          <div class="col-lg-4">
+            <label for="name" class="form-label">Name:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              placeholder="Enter Your Name"
+              name="name"
+            />
+          </div>
+          <div class="col-lg-4">
+            <label for="phone" class="form-label">Phone:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="phone"
+              placeholder="Enter Your Phone"
+              name="phone"
+            />
+          </div>
+          <div class="col-lg-4 d-grid mt-auto">
+            <button class="btn btn-primary" id="bookBtn">Book</button>
+          </div>
+        </div>
+      </div>
+
+      <hr class="featurette-divider" />
+
+      <!-- /END THE FEATURETTES -->
+      <!-- /.container -->
+
+      <!-- FOOTER -->
+      <footer class="container">
+        <p class="float-end"><a href="#">Back to top</a></p>
+        <p>
+          &copy; 2017–2023 Company, Inc. &middot;
+          <a href="#">Privacy</a> &middot; <a href="#">Terms</a>
+        </p>
+      </footer>
+    </main>
+    <script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/javascripts/jquery.com_jquery-3.7.0.min.js"></script>
+  </body>
+  <script>
+    $("#avaliable").click(function () {
+      $("#avaBox").toggle();
+    });
+    function assignTime() {
+      $("#time").empty();
+      const avaTime = JSON.parse($("#avaTime").val());
+      const dateVal = $("#date").val();
+      const screenVal = $("#screen").val();
+      // console.log(dateVal, screenVal, avaTime.timeTable);
+      const dateRes = avaTime.timeTable.filter((obj) => obj.date == dateVal);
+      const screenRes = dateRes[0].time.filter(
+        (obj) => obj.screenNo == screenVal
+      );
+      let html = "";
+      for (var i = 0; i < screenRes.length; i++) {
+        html += `<option value=${screenRes[i].time}>${screenRes[i].time}</option>`;
+      }
+      $("#time").append(html);
+    }
+    assignTime();
+    $("#date, #screen").on("change", function () {
+      assignTime();
+    });
+    $("#checkBtn").click(function () {
+      const data = {
+        movieId: "<%= movie._id %>",
+        cinemaId: "<%= movie.cinemaId._id %>",
+        date: $("#date").val(),
+        screen: $("#screen").val(),
+        time: $("#time").val(),
+      };
+      if (data.date && data.screen && data.time) {
+        $.ajax("/checkingSeats", {
+          type: "POST",
+          data: data,
+          success: function (result) {
+            let html = "";
+            $("#seatBox").empty();
+            for (var i = 0; i < result.seats.length; i++) {
+              html += `<div class="col">
+              <input
+                type="checkbox"
+                class="btn-check"
+                id="${result.seats[i].row + result.seats[i].no}"
+                name="seats"
+                data-price = "${result.seats[i].price}"
+                autocomplete="off"
+                value="${result.seats[i].row + result.seats[i].no}"
+                ${
+                  result.takeSeats.includes(
+                    result.seats[i].row + result.seats[i].no
+                  )
+                    ? "disabled"
+                    : ""
+                }
+              />
+              <label
+                class="btn ${
+                  result.takeSeats.includes(
+                    result.seats[i].row + result.seats[i].no
+                  )
+                    ? "btn-danger"
+                    : "btn-outline-success"
+                } "
+                for="${result.seats[i].row + result.seats[i].no}"
+                title="${result.seats[i].price} MMK"
+                >${result.seats[i].row + result.seats[i].no}</label
+              >
+            </div>`;
+            }
+            $("#seatBox").append(html);
+            $("#bookingBox").removeClass("d-none");
+          },
+        });
+      } else {
+        alert("Please select all field");
+      }
+    });
+    $("#bookBtn").click(function () {
+      var seat = [];
+      let price = 0;
+      $(":checkbox:checked").each(function (i) {
+        seat[i] = $(this).val();
+        price += $(this).data("price");
+      });
+
+      const name = $("#name").val();
+      const phone = $("#phone").val();
+      if (seat.length > 0 && name != "" && phone != "") {
+        const data = {
+          name: name,
+          phone: phone,
+          seat: seat.toString(),
+          movieId: "<%= movie._id %>",
+          price: price,
+          date: $("#date").val(),
+          screen: $("#screen").val(),
+          time: $("#time").val(),
+        };
+        console.log(data);
+        $.ajax("/submitBooking", {
+          type: "POST",
+          data: data,
+          success: function (result) {
+            if (result.status) {
+              location.href = "/bookingpanel/" + result.id;
+            } else {
+              alert("Somethings was wrong");
+            }
+          },
+        });
+      } else {
+        alert("Please insert required field");
+      }
+    });
+  </script>
+</html>

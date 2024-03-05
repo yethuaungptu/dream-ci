@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en" data-bs-theme="auto">
+  <head>
+    <% include ../../partialAdmin/head %>
+    <!-- Custom styles for this template -->
+  </head>
+  <body>
+    <% include ../../partialAdmin/theme-switcher %>
+    
+    <% include ../../partialAdmin/header %>
+
+<div class="container-fluid">
+  <div class="row">
+    <% include ../../partialAdmin/sidebar %>
+
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Cinema Detail</h1>
+      </div>
+      <div class="row">
+        <div class="col-lg-6 col-md-12 col-sm-12">
+          <img src="<%= cinema.cover %>" class="img-fluid" alt="">
+        </div>
+        <div class="col-lg-6 col-md-12 col-sm-12 border">
+          <h5>Name : <%= cinema.name %></h5>
+          <h5>Address : <%= cinema.address %></h5>
+          <h5>Phone : <%= cinema.phone %></h5>
+          <h5>Number of screen : <%= cinema.noOfScreen %></h5>
+          <h5>Show Time : <%= cinema.showTime %></h5>
+          <h5>Created By : <%= cinema.createdBy.email %></h5>
+          <h5>Updated By : <%= cinema.updatedBy.email %></h5>
+          <h5>Created : <%= cinema.created.toISOString().slice(0, 10); %></h5>
+          <h5>Updated : <%= cinema.updated.toISOString().slice(0, 10); %></h5>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <% for(var i = 0; i < cinema.gallery.length; i++){%>
+          <div class="col-lg-3 col-md-6 col-sm-12 border">
+            <img src="<%= cinema.gallery[i]%>" class="img-fluid" alt="">
+          </div>
+        <%}%>
+      </div>
+      <div class="row my-3">
+        <div class="col d-grid">
+          <a href="/admin/cinemaUpdate/<%= cinema._id %>" class="btn btn-warning d-block">Update</a>
+        </div>
+        <% if(movieCount == 0){%>
+        <div class="col d-grid">
+        <button onclick="del('<%= cinema._id %>')" class="btn btn-danger btn-block">Delete</button>
+        </div>
+        <%}%>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function del(id){
+    var con = confirm("Are you sure for delete?");
+    if(con){
+      location.href = "/admin/cinemaDelete/"+id
+    }
+  }
+</script>
+</html>

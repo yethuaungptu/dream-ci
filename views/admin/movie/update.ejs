@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en" data-bs-theme="auto">
+  <head>
+    <% include ../../partialAdmin/head %>
+    <!-- Custom styles for this template -->
+  </head>
+  <body>
+    <% include ../../partialAdmin/theme-switcher %>
+    
+    <% include ../../partialAdmin/header %>
+
+<div class="container-fluid">
+  <div class="row">
+    <% include ../../partialAdmin/sidebar %>
+
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Movie Update</h1>
+      </div>
+      <div class="row">
+        <div class="col-lg-2 col-md-1 col-sm-12"></div>
+        <div class="col-lg-8 col-md-10 col-sm-12">
+          <div class="card">
+            <div class="card-body">
+              <form action="/admin/movieUpdate" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="id" value="<%= movie._id %>">
+                <div class="mb-3 mt-3">
+                  <label for="title" class="form-label">Title:</label>
+                  <input type="text" class="form-control" id="title" value="<%= movie.title %>" name="title">
+                </div>
+                <div class="mb-3">
+                  <label for="cinemaId" class="form-label">Cinema:</label>
+                  <select class="form-select" name="cinemaId" id="cinemaId" aria-label="Default select example">
+                    <% for(var i = 0; i < cinemas.length; i++){%>
+                      <option value="<%= cinemas[i]._id %>" <%= cinemas[i]._id.equals(movie.cinemaId) ? "selected":""%>><%= cinemas[i].name %></option>
+                    <%}%>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="poster" class="form-label">Poster:</label>
+                  <input type="file" class="form-control" id="poster" placeholder="Insert Poster" name="poster" accept="image/*">
+                </div>
+                <div class="mb-3">
+                  <label for="category" class="form-label">Category:</label>
+                  <select class="form-select" name="category" id="category" aria-label="Default select example" multiple>
+                    <option value="action" <%= movie.category.includes("action") ? "selected":""%>>Action</option>
+                    <option value="horror"<%= movie.category.includes("horror") ? "selected":""%>>Horror</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="cast" class="form-label">Cast:</label>
+                  <input type="text" class="form-control" id="cast" value="<%= movie.cast %>" name="cast">
+                </div>
+                <div class="mb-3">
+                  <label for="director" class="form-label">Director</label>
+                  <input type="text" class="form-control" id="director" value="<%= movie.director %>" name="director">
+                </div>
+                <div class="mb-3">
+                  <label for="startDate" class="form-label">Start Date</label>
+                  <input type="date" class="form-control" id="startDate" value="<%= movie.startDate.toISOString().slice(0, 10); %>" name="startDate" >
+                </div>
+                <div class="mb-3">
+                  <label for="endDate" class="form-label">End Date</label>
+                  <input type="date" class="form-control" id="endDate" value="<%= movie.endDate.toISOString().slice(0, 10); %>" name="endDate" >
+                </div>
+                <div class="mb-3">
+                  <label for="releaseDate" class="form-label">Release Date</label>
+                  <input type="date" class="form-control" id="releaseDate" value="<%= movie.releaseDate.toISOString().slice(0, 10); %>" name="releaseDate" >
+                </div>
+                <div class="mb-3">
+                  <label for="duration" class="form-label">Duration</label>
+                  <input type="text" class="form-control" id="duration" value="<%= movie.duration %>" name="duration">
+                </div>
+                <div class="mb-3">
+                  <label for="trailer" class="form-label">Trailer link</label>
+                  <input type="text" class="form-control" id="trailer" value="<%= movie.trailer %>" name="trailer">
+                </div>
+                <div class="mb-3">
+                  <div class="form-floating">
+                    <textarea class="form-control" placeholder="Synopsis Here" id="syn" style="height: 100px" name="syn"><%= movie.syn %></textarea>
+                    <label for="syn">Synopsis</label>
+                  </div>
+                </div>
+                <div class="d-grid">
+                <button type="submit" class="btn btn-block btn-primary">Submit</button>
+              </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-1 col-sm-12"></div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
+</html>

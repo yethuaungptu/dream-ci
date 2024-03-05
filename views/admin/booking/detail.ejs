@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto">
+  <head>
+    <% include ../../partialAdmin/head %>
+    <!-- Custom styles for this template -->
+  </head>
+  <body>
+    <% include ../../partialAdmin/theme-switcher %> <% include
+    ../../partialAdmin/header %>
+
+    <div class="container-fluid">
+      <div class="row">
+        <% include ../../partialAdmin/sidebar %>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+          <div
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+          >
+            <h1 class="h2">Booking Detail</h1>
+          </div>
+          <div class="row">
+            <div class="col-lg-4 col-md-12 col-sm-12">
+              <img
+                src="<%= booking.movieId.poster %>"
+                class="img-fluid"
+                alt=""
+              />
+            </div>
+            <div class="col-lg-4 col-md-12 col-sm-12">
+              <h4>
+                Movie name :
+                <span class="text-primary"><%= booking.movieId.title %></span>
+              </h4>
+              <h4>
+                Cinema name :
+                <span class="text-primary"><%= cinema.name %></span>
+              </h4>
+              <h4>
+                Name : <span class="text-primary"><%= booking.name %></span>
+              </h4>
+              <h4>
+                Phone: <span class="text-primary"><%= booking.phone %></span>
+              </h4>
+              <h4>
+                Seat : <span class="text-primary"><%= booking.seat %></span>
+              </h4>
+              <h4>
+                Date: <span class="text-primary"><%= booking.date %></span>
+              </h4>
+              <h4>
+                Time : <span class="text-primary"><%= booking.time %></span>
+              </h4>
+              <h4>
+                Screen :
+                <span class="text-primary"><%= booking.screenNo %></span>
+              </h4>
+              <h4>
+                Price :
+                <span class="text-primary"><%= booking.price %> MMK</span>
+              </h4>
+              <h4>
+                Status :
+                <span class="text-primary"
+                  ><%= booking.status == "0" ? "Pending":"Complete" %>
+                </span>
+              </h4>
+            </div>
+            <div class="col-lg-4 col-md-12 col-sm-12">
+              <% if(booking.receipt){%>
+              <img src="<%= booking.receipt %>" class="img-fluid" alt="" />
+              <%}%>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <% if(booking.status == "0"){%>
+            <div class="col d-grid mt-auto">
+              <button
+                class="btn btn-success"
+                onclick="conFun('<%= booking._id %>')"
+              >
+                Confirm Booking
+              </button>
+            </div>
+            <%}%>
+            <div class="col d-grid mt-auto">
+              <button
+                class="btn btn-danger"
+                onclick="delFun('<%= booking._id %>')"
+              >
+                Delete Booking
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </body>
+  <script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/javascripts/jquery.com_jquery-3.7.0.min.js"></script>
+  <script>
+    function conFun(id) {
+      var opt = confirm("Are you sure for confirm");
+      if (opt) {
+        $.ajax("/admin/confirmBooking", {
+          type: "POST",
+          data: { id: id },
+          success: function (result) {
+            if (result.status) {
+              location.reload();
+            } else {
+              alert("Somethings was wrong");
+            }
+          },
+        });
+      }
+    }
+    function delFun(id) {
+      var opt = confirm("Are you sure for delete");
+      if (opt) {
+        $.ajax("/admin/deleteBooking", {
+          type: "POST",
+          data: { id: id },
+          success: function (result) {
+            if (result.status) {
+              location.href = "/admin/bookingManagement";
+            } else {
+              alert("Somethings was wrong");
+            }
+          },
+        });
+      }
+    }
+  </script>
+</html>

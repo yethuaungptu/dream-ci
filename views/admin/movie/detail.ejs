@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en" data-bs-theme="auto">
+  <head>
+    <% include ../../partialAdmin/head %>
+    <!-- Custom styles for this template -->
+  </head>
+  <body>
+    <% include ../../partialAdmin/theme-switcher %>
+    
+    <% include ../../partialAdmin/header %>
+
+<div class="container-fluid">
+  <div class="row">
+    <% include ../../partialAdmin/sidebar %>
+
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Movie Detail</h1>
+      </div>
+      <div class="row">
+        <div class="col-lg-6 col-md-12 col-sm-12">
+          <img src="<%= movie.poster %>" class="img-fluid" alt="">
+        </div>
+        <div class="col-lg-6 col-md-12 col-sm-12 border">
+          <h5>Name : <%= movie.title %></h5>
+          <h5>Cinema : <%= movie.cinemaId.name %></h5>
+          <h5>Category : <%= movie.category %></h5>
+          <h5>Cast : <%= movie.cast %></h5>
+          <h5>Director : <%= movie.director %></h5>
+          <h5>Start Date : <%= movie.startDate.toISOString().slice(0, 10); %></h5>
+          <h5>End Date : <%= movie.endDate.toISOString().slice(0, 10); %></h5>
+          <h5>Release Date : <%= movie.releaseDate.toISOString().slice(0, 10); %></h5>
+          <h5>Duration : <%= movie.duration %></h5>
+          <h5>Trailer : <%= movie.trailer %></h5>
+          <h5>Synopsis : <%= movie.syn %></h5>
+          <h5>Created By : <%= movie.createdBy.email %></h5>
+          <h5>Updated By : <%= movie.updatedBy.email %></h5>
+          <h5>Created : <%= movie.created.toISOString().slice(0, 10); %></h5>
+          <h5>Updated : <%= movie.updated.toISOString().slice(0, 10); %></h5>
+        </div>
+      </div>
+      <div class="row my-5">
+        <div class="col d-grid">
+          <a href="/admin/movieUpdate/<%= movie._id%>" class="btn btn-warning btn-block">Update</a>
+        </div>
+        <div class="col d-grid">
+          <button onclick="del('<%= movie._id%>')" class="btn btn-danger btn-block">Delete</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function del(id){
+    var opt = confirm("Are you sure for delete?");
+    if(opt) location.href = "/admin/movieDelete/"+id;
+  }
+</script>
+</html>

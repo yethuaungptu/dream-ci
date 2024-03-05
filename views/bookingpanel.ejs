@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto">
+  <head>
+    <!-- Custom styles for this template -->
+    <% include ./partial/head %>
+    <script src="https://printjs-4de6.kxcdn.com/print.min.js
+    "></script>
+    <link
+      rel="stylesheet"
+      href="https://printjs-4de6.kxcdn.com/print.min.css"
+    />
+  </head>
+  <body>
+    <% include ./partial/theme-changer %> <% include ./partial/header %>
+
+    <main>
+      <h3 class="mt-5 text-center">Booking Panel</h3>
+      <div class="row m-3">
+        <div class="col-lg-3 col-md-12 col-sm-12">
+          <img
+            src="<%= booking.movieId.poster %>"
+            alt=""
+            class="img-fluid"
+            width="200px"
+            height="300px"
+          />
+        </div>
+        <div class="row col-lg-9 col-md-12 col-sm-12" id="printJS-form">
+          <div class="col-lg-8 col-md-12 col-sm-12">
+            <h5>
+              Movie Name :
+              <span class="text-primary"><%= booking.movieId.title %></span>
+            </h5>
+            <h5>
+              Name :
+              <span class="text-primary"><%= booking.name %></span>
+            </h5>
+            <h5>
+              Phone :
+              <span class="text-primary"><%= booking.phone %></span>
+            </h5>
+            <h5>
+              Seat :
+              <span class="text-primary"><%= booking.seat %></span>
+            </h5>
+            <h5>
+              Price :
+              <span class="text-primary"><%= booking.price %> MMK</span>
+            </h5>
+            <h5>
+              Date :
+              <span class="text-primary"><%= booking.date %></span>
+            </h5>
+            <h5>
+              Time :
+              <span class="text-primary"><%= booking.time %></span>
+            </h5>
+            <h5>
+              Screen :
+              <span class="text-primary"><%= booking.screenNo %></span>
+            </h5>
+            <p>
+              Your booking is now
+              <span class="text-primary h5"
+                ><%= booking.status == '0'? "Pending":"Complete" %></span
+              >
+            </p>
+          </div>
+          <div class="col-lg-4 col-md-12 col-sm-12">
+            <iframe
+              id="qrcode"
+              src="https://api.mimfa.net/qrcode?value=123&as=value"
+              width="250"
+              height="250"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row mt-3">
+          <div class="col-lg-8 col-md-12 col-sm-12">
+            <% if(booking.receipt){%>
+            <img src="<%= booking.receipt %>" class="img-fluid" alt="" />
+            <%}else{%>
+            <form
+              action="/bookingreceipt"
+              method="post"
+              enctype="multipart/form-data"
+            >
+              <input type="hidden" name="id" value="<%= booking._id %>" />
+              <div class="row">
+                <div class="col">
+                  <label for="receipt" class="form-label">E receipt:</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="receipt"
+                    placeholder="Insert receipt"
+                    name="receipt"
+                    accept="image/*"
+                  />
+                </div>
+                <div class="col d-grid mt-auto">
+                  <button class="btn btn-success" type="submit">Upload</button>
+                </div>
+              </div>
+            </form>
+            <%}%>
+          </div>
+          <div class="col-lg-4 col-md-12 col-sm-12 d-grid mt-auto">
+            <button
+              class="btn btn-primary"
+              onclick="printJS('printJS-form', 'html')"
+            >
+              Print
+            </button>
+          </div>
+        </div>
+      </div>
+      <hr class="featurette-divider" />
+
+      <!-- /END THE FEATURETTES -->
+      <!-- /.container -->
+
+      <!-- FOOTER -->
+      <footer class="container">
+        <p class="float-end"><a href="#">Back to top</a></p>
+        <p>
+          &copy; 2017–2023 Company, Inc. &middot;
+          <a href="#">Privacy</a> &middot; <a href="#">Terms</a>
+        </p>
+      </footer>
+    </main>
+    <script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/javascripts/jquery.com_jquery-3.7.0.min.js"></script>
+  </body>
+  <script>
+    var data = "<%= booking._id %>";
+    document
+      .getElementById("qrcode")
+      .setAttribute(
+        "src",
+        "https://api.mimfa.net/qrcode?value=" + data + "&as=value"
+      );
+  </script>
+</html>
